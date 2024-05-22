@@ -1,8 +1,8 @@
-from flask import Flask, request, jsonify, send_from_directory # Importuje potrebné moduly a funkcie z Flask framework
-from flask_cors import CORS, cross_origin # Importuje modul Flask-CORS na povolenie CORS (Cross-Origin Resource Sharing)
-import requests # Importuje requests modul na vykonávanie HTTP požiadaviek
-from check_breach import check_aircraft_zone_violations # Importuje vlastnú funkciu na kontrolu narušení zóny lietadlami
-import os # Importuje os modul na prácu so súborovým systémom
+from flask import Flask, request, jsonify, send_from_directory  # Importuje potrebné moduly a funkcie z Flask framework
+from flask_cors import CORS, cross_origin  # Importuje modul Flask-CORS na povolenie CORS (Cross-Origin Resource Sharing)
+import requests  # Importuje requests modul na vykonávanie HTTP požiadaviek
+from check_breach import check_aircraft_zone_violations  # Importuje vlastnú funkciu na kontrolu narušení zóny lietadlami
+import os  # Importuje os modul na prácu so súborovým systémom
 
 """
 Technická univerzita v Košiciach
@@ -38,6 +38,7 @@ debug = True
 latest_drone_location = {}
 aircraft_data = {}
 
+
 # Funkcia na validáciu dát prichádzajúcich z dronu
 def validate_data(data):
     required_fields = ['latitude', 'longitude', 'altitude']
@@ -45,6 +46,7 @@ def validate_data(data):
         if field not in data or not isinstance(data[field], (float, int)):
             return False
     return True
+
 
 # Endpoint na poskytovanie heatmapových dlaždíc
 @app.route('/heatmap/<string:included>/res_<int:resolution>/<int:height>/<int:z>/<int:x>/<int:y>.png')
@@ -63,7 +65,8 @@ def serve_tile(included, resolution, height, z, x, y):
         return send_from_directory(base_folder, tile_path)
     else:
         print("Súbor nebol nájdený na ceste:", full_path)
-        return "Súbor nenájdený", 404
+        return "File not found", 404
+
 
 # Endpoint na prijímanie dát o polohe dronu
 @app.route('/drone_location', methods=['POST'])
@@ -76,11 +79,12 @@ def receive_drone_data():
         print(data)
         if validate_data(data):
             latest_drone_location = data
-            return jsonify({"status": "success", "message": "Dáta prijaté a validované"}), 200
+            return jsonify({"status": "success", "message": "Data received and validated"}), 200
         else:
-            return jsonify({"status": "error", "message": "Neplatné dáta"}), 400
+            return jsonify({"status": "error", "message": "Invalid data"}), 400
     else:
-        return jsonify({"status": "error", "message": "Žiadosť musí byť vo formáte JSON"}), 400
+        return jsonify({"status": "error", "message": "Request must be JSON"}), 400
+
 
 # Endpoint na získavanie dát o lietadlách
 @app.route('/data')
@@ -100,6 +104,7 @@ def data():
     except requests.exceptions.RequestException as e:
         return jsonify({"error": str(e)}), 500
 
+
 # Endpoint na poskytovanie najnovších dát o polohe dronu
 @app.route('/drone_data')
 @cross_origin()
@@ -113,6 +118,7 @@ def drone_data():
         return jsonify(latest_drone_location)
     else:
         return jsonify({"error": "Nie sú dostupné dáta o polohe dronu"}), 404
+
 
 # Endpoint na kontrolu narušení zóny
 @app.route('/check_breach', methods=['POST'])
@@ -131,6 +137,7 @@ def check_breach():
     output = check_aircraft_zone_violations(zone_info, settings, aircraft_data)
     print(output)
     return jsonify(output)
+
 
 # Spustenie aplikácie
 if __name__ == '__main__':
