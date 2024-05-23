@@ -57,6 +57,8 @@ def check_aircraft_zone_violations(zone_info, settings, aircraft_data):
 
     # Funkcia na predikciu budúcej polohy lietadla
     def predict_position(lat, lon, speed, track, duration):
+        if speed is None:
+            speed = 0
         speed_mps = speed * 0.514444  # konverzia z uzlov na metre za sekundu
         track_rad = radians(track)
         dx = speed_mps * duration * 60 * cos(track_rad)
